@@ -7,6 +7,8 @@ teams:
     password: Cyberrange123!
   - username: greyteam
     password: Cyberrange123!
+  - username: test
+    password:
   services:
   - name: WordPress
     check_name: HTTPCheck
