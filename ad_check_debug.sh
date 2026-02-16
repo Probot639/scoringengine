@@ -13,12 +13,14 @@ Options:
   --domain <domain>      AD domain suffix (default: arasaka.com)
   --base-dn <dn>         LDAP base DN (default: DC=arasaka,DC=com)
   --fix-matcher          Update DB matching_content to "sAMAccountName: <user>"
+  --fix-matcher-regex    Update DB matching_content to "sAMAccountName:[[:space:]]*<user>"
   --no-logs              Skip worker log output
   --help                 Show this help
 
 Examples:
   ./ad_check_debug.sh
   ./ad_check_debug.sh --fix-matcher
+  ./ad_check_debug.sh --fix-matcher-regex
   ./ad_check_debug.sh --user sarasaka --password 'Arasaka2077!'
 EOF
 }
@@ -30,6 +32,7 @@ PASSWORD="Arasaka2077!"
 DOMAIN="arasaka.com"
 BASE_DN="DC=arasaka,DC=com"
 FIX_MATCHER=0
+FIX_MATCHER_REGEX=0
 SHOW_LOGS=1
 
 while [[ $# -gt 0 ]]; do
@@ -60,6 +63,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --fix-matcher)
       FIX_MATCHER=1
+      shift
+      ;;
+    --fix-matcher-regex)
+      FIX_MATCHER_REGEX=1
       shift
       ;;
     --no-logs)
@@ -120,7 +127,7 @@ fi
 echo
 echo "== AD environment matcher in DB =="
 run_mysql_query "
-SELECT e.id, s.name, s.check_name, e.matching_content
+SELECT e.id, s.name, s.check_name, e.matching_content, HEX(e.matching_content) AS hex_mc
 FROM environments e
 JOIN services s ON s.id=e.service_id
 WHERE s.check_name='ActiveDirectoryCheck';
@@ -137,6 +144,27 @@ WHERE s.check_name='ActiveDirectoryCheck';
 "
   echo "Updated matching_content to: sAMAccountName: ${USER_NAME}"
 fi
+
+if [[ "$FIX_MATCHER_REGEX" -eq 1 ]]; then
+  echo
+  echo "== Applying regex matcher fix =="
+  run_mysql_query "
+UPDATE environments e
+JOIN services s ON s.id=e.service_id
+SET e.matching_content='sAMAccountName:[[:space:]]*${USER_NAME}'
+WHERE s.check_name='ActiveDirectoryCheck';
+"
+  echo "Updated matching_content to: sAMAccountName:[[:space:]]*${USER_NAME}"
+fi
+
+echo
+echo "== AD environment matcher in DB (post-fix) =="
+run_mysql_query "
+SELECT e.id, s.name, s.check_name, e.matching_content, HEX(e.matching_content) AS hex_mc
+FROM environments e
+JOIN services s ON s.id=e.service_id
+WHERE s.check_name='ActiveDirectoryCheck';
+"
 
 echo
 echo "== Latest AD check results =="
