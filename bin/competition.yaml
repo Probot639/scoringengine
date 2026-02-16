@@ -122,19 +122,21 @@ teams:
         value: "TODO"
       - name: command
         value: "TODO"
-  # - name: IRC
-  #   check_name: TODO
-  #   host: 10.10.10.29
-  #   port: 6667
-  #   points: 1
-  #   accounts:
-  #   - username: cyberrange
-  #     password: Cyberrange123!
-  #   environments:
-  #   - matching_content: TODO
-  #     properties:
-  #     - name: TODO
-  #       value: "TODO"
+  - name: IRC
+    check_name: IRCCheck
+    host: 10.10.10.29
+    port: 6667
+    points: 1
+    accounts:
+    - username: cyberrange
+      password: cyberpsychosis
+    environments:
+    - matching_content: "^SUCCESS"
+      properties:
+      - name: timeout
+        value: "10"
+      - name: realname
+        value: "Scoring Engine"
 flags:
   - type: file
     platform: nix
