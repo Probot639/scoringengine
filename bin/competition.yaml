@@ -80,12 +80,6 @@ teams:
     accounts:
     - username: sarasaka
       password: Arasaka2077!
-    - username: rbartmoss
-      password: Arasaka
-    - username: harasaka
-      password: Soulkiller123
-    - username: acunningham
-      password: Blackwall99
     environments:
     - matching_content: TODO
       properties:
