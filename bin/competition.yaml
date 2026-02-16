@@ -28,7 +28,7 @@ teams:
   - name: Chatbot
     check_name: HTTPCheck
     host: 10.10.10.37
-    port: 80
+    port: 8080
     points: 1
     environments:
     - matching_content: TODO
@@ -79,8 +79,14 @@ teams:
     port: 389
     points: 1
     accounts:
-    - username: cyberrange
-      password: Cyberrange123!
+    - username: sarasaka
+      password: Arasaka2077!
+    - username: rbartmoss
+      password: Arasaka
+    - username: harasaka
+      password: Soulkiller123
+    - username: acunningham
+      password: Blackwall99
     environments:
     - matching_content: TODO
       properties:
