@@ -44,8 +44,8 @@ teams:
     port: 21
     points: 1
     accounts:
-    - username: cyberrange
-      password: Cyberrange123!
+    - username: ftpuser
+      password: ftppass123
     environments:
     - matching_content: "SE_FTP_OK"
       properties:
