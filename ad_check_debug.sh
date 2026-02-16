@@ -151,7 +151,7 @@ if [[ "$FIX_MATCHER_REGEX" -eq 1 ]]; then
   run_mysql_query "
 UPDATE environments e
 JOIN services s ON s.id=e.service_id
-SET e.matching_content='sAMAccountName:\\\\s*${USER_NAME}'
+SET e.matching_content=CONCAT('sAMAccountName:', CHAR(92), 's*${USER_NAME}')
 WHERE s.check_name='ActiveDirectoryCheck';
 "
   echo "Updated matching_content to: sAMAccountName:\\s*${USER_NAME}"

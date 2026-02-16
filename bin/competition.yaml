@@ -81,7 +81,7 @@ teams:
     - username: sarasaka
       password: Arasaka2077!
     environments:
-    - matching_content: TODO
+    - matching_content: "sAMAccountName: sarasaka"
       properties:
       - name: domain
         value: "arasaka.com"
