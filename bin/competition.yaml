@@ -22,7 +22,7 @@ teams:
       - name: useragent
         value: Mozilla/5.0
       - name: vhost
-        value: svc-wp-01
+        value: 10.10.10.30
       - name: uri
         value: "/wp-login.php"
   - name: Chatbot
@@ -36,7 +36,7 @@ teams:
       - name: useragent
         value: Mozilla/5.0
       - name: vhost
-        value: svc-chatbot-01
+        value: 10.10.10.37
       - name: uri
         value: "/"
   - name: FTP
@@ -99,7 +99,7 @@ teams:
       - name: useragent
         value: Mozilla/5.0
       - name: vhost
-        value: svc-cache-01
+        value: 10.10.10.28
       - name: uri
         value: "/"
   - name: MariaDB
