@@ -7,6 +7,8 @@ Implemented Checks
 .. include:: checks/http.rst
 .. include:: checks/icmp.rst
 .. include:: checks/imap.rst
+.. include:: checks/irc.rst
+.. include:: checks/active_directory.rst
 .. include:: checks/ldap.rst
 .. include:: checks/mssql.rst
 .. include:: checks/mysql.rst

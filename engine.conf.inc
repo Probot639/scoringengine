@@ -1,6 +1,6 @@
 [OPTIONS]
 checks_location = scoring_engine/checks
-target_round_time = 180
+target_round_time = 30
 agent_psk = TheCakeIsALie
 agent_show_flag_early_mins = 5
 worker_refresh_time = 30

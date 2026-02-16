@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+
+import socket
+import sys
+import time
+
+
+if len(sys.argv) != 8:
+    print("Usage: " + sys.argv[0] + " host port timeout nick user realname password")
+    sys.exit(1)
+
+host = sys.argv[1]
+port = int(sys.argv[2])
+timeout = float(sys.argv[3])
+nick = sys.argv[4]
+user = sys.argv[5]
+realname = sys.argv[6]
+password = sys.argv[7]
+
+
+def send_line(sock, line):
+    sock.sendall((line + "\r\n").encode("utf-8"))
+
+
+try:
+    sock = socket.create_connection((host, port), timeout=timeout)
+    sock.settimeout(timeout)
+
+    if password and password != "-":
+        send_line(sock, "PASS " + password)
+
+    send_line(sock, "NICK " + nick)
+    send_line(sock, "USER " + user + " 0 * :" + realname)
+
+    buffer = b""
+    start = time.time()
+
+    while time.time() - start < timeout:
+        data = sock.recv(4096)
+        if not data:
+            break
+        buffer += data
+        while b"\n" in buffer:
+            line, buffer = buffer.split(b"\n", 1)
+            line = line.decode("utf-8", errors="replace").rstrip("\r")
+            if line.startswith("PING "):
+                send_line(sock, "PONG " + line.split(" ", 1)[1])
+            if " 001 " in line or " 004 " in line:
+                print("SUCCESS")
+                print(line)
+                sock.close()
+                sys.exit(0)
+
+    print("ERROR: No welcome from IRC server")
+    sys.exit(1)
+except Exception as e:
+    print("ERROR: " + str(e))
+    sys.exit(1)
