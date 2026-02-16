@@ -31,7 +31,7 @@ teams:
     port: 8080
     points: 1
     environments:
-    - matching_content: "Arasaka AI Proxy // Model :"
+    - matching_content: "ARASAKA // Arasaki Intelligence Terminal"
       properties:
       - name: useragent
         value: Mozilla/5.0
