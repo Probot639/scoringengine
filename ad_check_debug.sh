@@ -13,7 +13,7 @@ Options:
   --domain <domain>      AD domain suffix (default: arasaka.com)
   --base-dn <dn>         LDAP base DN (default: DC=arasaka,DC=com)
   --fix-matcher          Update DB matching_content to "sAMAccountName: <user>"
-  --fix-matcher-regex    Update DB matching_content to "sAMAccountName:[[:space:]]*<user>"
+  --fix-matcher-regex    Update DB matching_content to "sAMAccountName:\\s*<user>"
   --no-logs              Skip worker log output
   --help                 Show this help
 
@@ -147,14 +147,14 @@ fi
 
 if [[ "$FIX_MATCHER_REGEX" -eq 1 ]]; then
   echo
-  echo "== Applying regex matcher fix =="
+  echo "== Applying regex matcher fix (Python re syntax) =="
   run_mysql_query "
 UPDATE environments e
 JOIN services s ON s.id=e.service_id
-SET e.matching_content='sAMAccountName:[[:space:]]*${USER_NAME}'
+SET e.matching_content='sAMAccountName:\\\\s*${USER_NAME}'
 WHERE s.check_name='ActiveDirectoryCheck';
 "
-  echo "Updated matching_content to: sAMAccountName:[[:space:]]*${USER_NAME}"
+  echo "Updated matching_content to: sAMAccountName:\\s*${USER_NAME}"
 fi
 
 echo
