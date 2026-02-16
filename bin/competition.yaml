@@ -59,19 +59,19 @@ teams:
     port: 445
     points: 1
     accounts:
-    - username: cyberrange
-      password: Cyberrange123!
+    - username: legacy_admin
+      password: Password123!
     environments:
-    - matching_content: TODO
+    - matching_content: "SUCCESS"
       properties:
       - name: remote_name
-        value: "TODO"
+        value: "SVC-FILES-01"
       - name: share
-        value: "TODO"
+        value: "PublicShare"
       - name: file
-        value: "TODO"
+        value: "NeonOps/credentials.txt"
       - name: hash
-        value: "TODO"
+        value: "cfa26da69659fada461798e135c36ad56b7fc1ebdfd35bc011520e3c383229a7"
   - name: Active Directory
     check_name: ActiveDirectoryCheck
     host: 10.10.10.20
