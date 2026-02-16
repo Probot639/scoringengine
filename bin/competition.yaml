@@ -16,7 +16,7 @@ teams:
     port: 80
     points: 1
     environments:
-    - matching_content: TODO
+    - matching_content: "<!DOCTYPE html>"
       properties:
       - name: useragent
         value: Mozilla/5.0
