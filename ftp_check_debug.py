@@ -36,7 +36,7 @@ def split_parent(remote_path: str) -> tuple[str, str]:
     if "/" not in clean:
         return ".", clean
     parent, name = clean.rsplit("/", 1)
-    return "/" + parent, name
+    return parent, name
 
 
 def list_dir(ftp: FTP, remote_parent: str) -> None:
@@ -104,17 +104,18 @@ def main() -> int:
     remote_parent, remote_name = split_parent(args.remote_path)
     info(f"Parent dir: {remote_parent}, file: {remote_name}")
 
-    try:
-        ftp.cwd(remote_parent)
-        ok(f"Parent directory exists and is accessible: {remote_parent}")
+    if remote_parent != ".":
         try:
-            ftp.cwd("/")
-        except all_errors:
-            pass
-    except all_errors as exc:
-        list_dir(ftp, "/")
-        ftp.quit()
-        return fail(f"Parent directory '{remote_parent}' is not accessible: {exc}")
+            ftp.cwd(remote_parent)
+            ok(f"Parent directory exists and is accessible: {remote_parent}")
+            try:
+                ftp.cwd("/")
+            except all_errors:
+                pass
+        except all_errors as exc:
+            list_dir(ftp, ".")
+            ftp.quit()
+            return fail(f"Parent directory '{remote_parent}' is not accessible: {exc}")
 
     # 2) Upload
     payload = (args.content + "\n").encode("utf-8")

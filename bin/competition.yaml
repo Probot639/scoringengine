@@ -50,7 +50,7 @@ teams:
     - matching_content: "SE_FTP_OK"
       properties:
       - name: remotefilepath
-        value: "arasaka_internal/se_probe.txt"
+        value: "se_probe.txt"
       - name: filecontents
         value: "SE_FTP_OK"
   - name: SMB
