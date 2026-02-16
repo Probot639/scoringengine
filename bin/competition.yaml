@@ -21,7 +21,7 @@ teams:
       - name: vhost
         value: 10.10.10.30
       - name: uri
-        value: "/wp-admin"
+        value: "/wp-login.php"
   - name: Chatbot
     check_name: HTTPCheck
     host: 10.10.10.37
