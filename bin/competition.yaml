@@ -47,7 +47,7 @@ teams:
     - username: cyberrange
       password: Cyberrange123!
     environments:
-    - matching_content: TODO
+    - matching_content: "sAMAccountName: sarasaka"
       properties:
       - name: remotefilepath
         value: "TODO"
@@ -90,9 +90,9 @@ teams:
     - matching_content: TODO
       properties:
       - name: domain
-        value: "TODO"
+        value: "arasaka.com"
       - name: base_dn
-        value: "TODO"
+        value: "DC=arasaka,DC=com"
   - name: Apache/Redis
     check_name: HTTPCheck
     host: 10.10.10.28
