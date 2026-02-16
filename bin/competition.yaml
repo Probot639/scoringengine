@@ -9,13 +9,10 @@ teams:
     password: Cyberrange123!
   services:
   - name: WordPress
-    check_name: WordpressCheck
+    check_name: HTTPCheck
     host: 10.10.10.30
     port: 80
     points: 1
-    accounts:
-    - username: cyberrange
-      password: Cyberrange123!
     environments:
     - matching_content: TODO
       properties:
@@ -24,7 +21,7 @@ teams:
       - name: vhost
         value: 10.10.10.30
       - name: uri
-        value: "/wp-login.php"
+        value: "/wp-admin"
   - name: Chatbot
     check_name: HTTPCheck
     host: 10.10.10.37
