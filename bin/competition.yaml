@@ -107,15 +107,15 @@ teams:
     port: 3306
     points: 1
     accounts:
-    - username: cyberrange
-      password: Cyberrange123!
+    - username: runner_app
+      password: NightCity2026
     environments:
-    - matching_content: TODO
+    - matching_content: "SE_MARIADB_OK"
       properties:
       - name: database
-        value: "TODO"
+        value: "arasaka_assets"
       - name: command
-        value: "TODO"
+        value: "SELECT 'SE_MARIADB_OK' AS status;"
   - name: IRC
     check_name: IRCCheck
     host: 10.10.10.29
