@@ -47,12 +47,12 @@ teams:
     - username: cyberrange
       password: Cyberrange123!
     environments:
-    - matching_content: "sAMAccountName: sarasaka"
+    - matching_content: "SE_FTP_OK"
       properties:
       - name: remotefilepath
-        value: "TODO"
+        value: "arasaka_internal/se_probe.txt"
       - name: filecontents
-        value: "TODO"
+        value: "SE_FTP_OK"
   - name: SMB
     check_name: SMBCheck
     host: 10.10.10.21
