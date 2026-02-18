@@ -9,12 +9,12 @@ teams:
   color: Red
   users:
   - username: RedTeam
-    password: Cyberrange123!
+    password: Redrange123!
 - name: Blue Team
   color: Blue
   users:
   - username: BlueTeam
-    password: Cyberrange123!
+    password: Bluerange123!
   services:
   - name: WordPress
     check_name: HTTPCheck
