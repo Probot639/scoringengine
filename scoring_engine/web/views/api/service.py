@@ -113,8 +113,8 @@ def update_service_account_info():
         if "name" in request.form and "value" in request.form and "pk" in request.form:
             if is_valid_user_input(request.form["value"], False, False):
                 if request.form["name"] == "username":
-                    modify_usernames_setting = Setting.get_setting("blue_team_update_account_usernames")
-                    if modify_usernames_setting.value is False and current_user.is_blue_team:
+                    # Blue-team service account usernames are immutable.
+                    if current_user.is_blue_team:
                         return jsonify({"error": "Incorrect permissions"})
 
                 elif request.form["name"] == "password":

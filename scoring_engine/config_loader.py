@@ -126,6 +126,12 @@ class ConfigLoader(object):
             "bool",
         )
 
+        self.red_team_flag_submission_penalty = self.parse_sources(
+            "red_team_flag_submission_penalty",
+            int(self.parser["OPTIONS"].get("red_team_flag_submission_penalty", "10")),
+            "int",
+        )
+
         self.task_jitter_max_delay = self.parse_sources(
             "task_jitter_max_delay",
             int(self.parser["OPTIONS"].get("task_jitter_max_delay", "0")),

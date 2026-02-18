@@ -1,14 +1,20 @@
 ---
 teams:
-- name: Team1
+- name: White Team
+  color: White
+  users:
+  - username: GreyTeam
+    password: test
+- name: Red Team
+  color: Red
+  users:
+  - username: RedTeam
+    password: Cyberrange123!
+- name: Blue Team
   color: Blue
   users:
-  - username: blueteam
+  - username: BlueTeam
     password: Cyberrange123!
-  - username: greyteam
-    password: Cyberrange123!
-  - username: test
-    password: test
   services:
   - name: WordPress
     check_name: HTTPCheck

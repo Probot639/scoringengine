@@ -113,3 +113,14 @@ def update_stats():
                     cache.cache.key_prefix
                 )
             )
+
+
+def update_flags_data():
+    # Clear cached /api/flags* responses (keyed per-team)
+    if not isinstance(cache.cache, NullCache):
+        for key in cache.cache._write_client.scan_iter(match="*/api/flags*_*"):
+            cache.delete(
+                key.decode("utf-8").removeprefix(
+                    cache.cache.key_prefix
+                )
+            )

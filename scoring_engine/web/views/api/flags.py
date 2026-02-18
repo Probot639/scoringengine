@@ -1,18 +1,54 @@
 from datetime import datetime, timedelta, timezone
 
-from flask import jsonify
+from flask import jsonify, request
 from flask_login import current_user, login_required
+from dateutil.parser import parse as parse_datetime
 from sqlalchemy import case, func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.expression import and_, or_
 
 from scoring_engine.cache import cache
+from scoring_engine.cache_helper import update_flags_data, update_scoreboard_data, update_team_stats
 from scoring_engine.db import db
-from scoring_engine.models.flag import Flag, Perm, Platform, Solve
+from scoring_engine.models.flag import (
+    Flag,
+    FlagTypeEnum,
+    Perm,
+    Platform,
+    RedFlagSubmission,
+    Solve,
+)
 from scoring_engine.models.service import Service
 from scoring_engine.models.setting import Setting
 from scoring_engine.models.team import Team
 
 from . import make_cache_key, mod
+
+FLAG_SUBMISSION_PENALTY_POINTS = 10
+
+
+def _parse_datetime_input(value):
+    if not value:
+        return None
+    try:
+        parsed = parse_datetime(value)
+    except (TypeError, ValueError):
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def _get_flag_token(flag_obj):
+    if not isinstance(flag_obj.data, dict):
+        return None
+    token = flag_obj.data.get("flag")
+    if token:
+        return str(token).strip()
+    content_token = flag_obj.data.get("content")
+    if content_token:
+        return str(content_token).strip()
+    return None
 
 
 @mod.route("/api/flags")
@@ -33,22 +69,154 @@ def api_flags():
         .all()
     )
 
+    # White team can see all active flags.
+    # Red team can only see flags that have already been submitted by their team.
+    if current_user.is_red_team:
+        submitted_flag_ids = {
+            row.flag_id
+            for row in db.session.query(RedFlagSubmission.flag_id)
+            .filter(RedFlagSubmission.submitted_by_team_id == current_user.team.id)
+            .all()
+        }
+        flags = [flag for flag in flags if flag.id in submitted_flag_ids]
+
     # Serialize flags and include localized times
     data = [
         {
             "id": f.id,
-            "start_time": f.localize_start_time,  # Use the localized property
-            "end_time": f.localize_end_time,  # Use the localized property
-            "type": f.type.value,
-            "platform": f.platform.value,
-            "perm": f.perm.value,
-            "path": f.data.get("path"),
+            "flag": _get_flag_token(f),
             "content": f.data.get("content"),
         }
         for f in flags
     ]
 
     return jsonify(data=data)
+
+
+@mod.route("/api/flags/add", methods=["POST"])
+@login_required
+def api_flags_add():
+    if not current_user.is_white_team:
+        return jsonify({"error": "Incorrect permissions"}), 403
+
+    payload = request.get_json(silent=True) or request.form
+    content = (payload.get("content") or "").strip()
+    dummy_raw = str(payload.get("dummy", "false")).strip().lower()
+
+    if not content:
+        return jsonify({"error": "content is required"}), 400
+
+    start_time = _parse_datetime_input(payload.get("start_time")) or datetime.now(
+        timezone.utc
+    )
+    end_time = _parse_datetime_input(payload.get("end_time")) or (
+        start_time + timedelta(hours=3)
+    )
+    if end_time <= start_time:
+        return jsonify({"error": "end_time must be after start_time"}), 400
+
+    dummy = dummy_raw in {"true", "1", "yes", "on"}
+    new_flag = Flag(
+        type=FlagTypeEnum.file,
+        platform=Platform.nix,
+        perm=Perm.user,
+        data={
+            "content": content,
+        },
+        start_time=start_time,
+        end_time=end_time,
+        dummy=dummy,
+    )
+    db.session.add(new_flag)
+    db.session.commit()
+
+    update_flags_data()
+
+    return jsonify({"status": "ok", "flag_id": new_flag.id})
+
+
+@mod.route("/api/flags/submit", methods=["POST"])
+@login_required
+def api_flags_submit():
+    if not current_user.is_red_team:
+        return jsonify({"error": "Incorrect permissions"}), 403
+
+    payload = request.get_json(silent=True) or request.form
+    flag_id = payload.get("flag_id")
+    submitted_flag_value = (
+        payload.get("content")
+        or payload.get("flag")
+        or payload.get("flag_value")
+        or payload.get("submitted_flag")
+    )
+    team_id = payload.get("team_id")
+
+    if not team_id:
+        return jsonify({"error": "team_id is required"}), 400
+    if not flag_id and not submitted_flag_value:
+        return jsonify({"error": "flag_id or submitted flag value is required"}), 400
+
+    try:
+        team_id = int(team_id)
+    except (TypeError, ValueError):
+        return jsonify({"error": "team_id must be an integer"}), 400
+
+    target_team = db.session.get(Team, team_id)
+    if target_team is None or not target_team.is_blue_team:
+        return jsonify({"error": "target team must be a blue team"}), 400
+
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    flag = None
+    if flag_id:
+        flag = db.session.get(Flag, flag_id)
+    else:
+        submitted_flag_value = str(submitted_flag_value).strip()
+        candidate_flags = (
+            db.session.query(Flag)
+            .filter(Flag.dummy == False)
+            .all()
+        )
+        for candidate in candidate_flags:
+            if not (candidate.start_time <= now <= candidate.end_time):
+                continue
+            token = _get_flag_token(candidate)
+            if token and token == submitted_flag_value:
+                flag = candidate
+                break
+
+    if flag is None:
+        return jsonify({"error": "flag not found"}), 404
+    if flag.dummy or not (flag.start_time <= now <= flag.end_time):
+        return jsonify({"error": "flag is not currently active"}), 400
+
+    points = FLAG_SUBMISSION_PENALTY_POINTS
+    submission = RedFlagSubmission(
+        flag_id=flag.id,
+        target_team_id=target_team.id,
+        submitted_by_team_id=current_user.team.id,
+        submitted_by_user_id=current_user.id,
+        points=points,
+        submitted_at=datetime.now(timezone.utc),
+    )
+    db.session.add(submission)
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"error": "flag already submitted for this blue team"}), 409
+
+    update_scoreboard_data()
+    update_team_stats(target_team.id)
+    update_flags_data()
+
+    return jsonify(
+        {
+            "status": "ok",
+            "flag_id": flag.id,
+            "team_id": target_team.id,
+            "points_deducted": points,
+        }
+    )
 
 
 @mod.route("/api/flags/solves")

@@ -15,13 +15,36 @@
   <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
   <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
 </head>
-{% if 'unauthorized' in request.path %}
+{% set page_theme = 'theme-default' %}
+{% if 'admin' in request.path %}
+  {% set page_theme = 'theme-admin' %}
+{% elif request.path == '/' or request.path == '/index' %}
+  {% set page_theme = 'theme-welcome' %}
+{% elif request.path == '/scoreboard' %}
+  {% set page_theme = 'theme-scoreboard' %}
+{% elif request.path == '/overview' %}
+  {% set page_theme = 'theme-overview' %}
+{% elif request.path == '/flags' %}
+  {% set page_theme = 'theme-flags' %}
+{% elif request.path == '/services' or '/service/' in request.path %}
+  {% set page_theme = 'theme-services' %}
+{% elif request.path == '/injects' or '/inject/' in request.path %}
+  {% set page_theme = 'theme-injects' %}
+{% elif request.path == '/stats' %}
+  {% set page_theme = 'theme-stats' %}
+{% elif request.path == '/profile' %}
+  {% set page_theme = 'theme-profile' %}
+{% elif request.path == '/about' %}
+  {% set page_theme = 'theme-about' %}
+{% elif request.path == '/login' %}
+  {% set page_theme = 'theme-login' %}
+{% elif request.path == '/notifications' %}
+  {% set page_theme = 'theme-notifications' %}
+{% elif 'unauthorized' in request.path %}
+  {% set page_theme = 'theme-unauthorized' %}
+{% endif %}
 
-<body style="background-color: red">
-  {% else %}
-
-  <body style="background-color: #f9f9f9;">
-    {% endif %}
+<body class="{{ page_theme }}">
     <script>
       $(document).ready(function () {
         $("#alert-info").fadeTo(2000, 500).slideUp(500, function () {

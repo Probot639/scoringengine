@@ -2,7 +2,16 @@
 
 from datetime import datetime, timedelta, timezone
 
-from scoring_engine.models.flag import Flag, FlagTypeEnum, Perm, Platform, Solve
+from scoring_engine.models.check import Check
+from scoring_engine.models.flag import (
+    Flag,
+    FlagTypeEnum,
+    Perm,
+    Platform,
+    RedFlagSubmission,
+    Solve,
+)
+from scoring_engine.models.round import Round
 from scoring_engine.models.service import Service
 from scoring_engine.models.setting import Setting
 from scoring_engine.models.team import Team
@@ -682,3 +691,130 @@ class TestFlagsAPI(UnitTest):
         # Team1 should have score, team2 should not
         assert team1_entry["total_score"] == 1
         assert team2_entry["total_score"] == 0
+
+    # Red Flag Submission Tests
+    def test_api_flags_submit_blue_team_unauthorized(self):
+        self.login("blueuser1", "pass")
+        resp = self.client.post(
+            "/api/flags/submit",
+            json={"flag_id": "nope", "team_id": self.blue_team1.id},
+        )
+        assert resp.status_code == 403
+
+    def test_api_flags_submit_creates_submission_and_deducts_score(self):
+        service = Service(
+            name="Web",
+            check_name="HTTPCheck",
+            host="10.0.0.10",
+            team=self.blue_team1,
+            port=80,
+            points=20,
+        )
+        round1 = Round(number=1)
+        check = Check(round=round1, service=service, result=True, output="ok")
+        flag = Flag(
+            type=FlagTypeEnum.file,
+            platform=Platform.windows,
+            perm=Perm.user,
+            data={"path": "C:\\test", "content": "test"},
+            start_time=datetime.now(timezone.utc) - timedelta(minutes=1),
+            end_time=datetime.now(timezone.utc) + timedelta(hours=1),
+            dummy=False,
+        )
+        self.session.add_all([service, round1, check, flag])
+        self.session.commit()
+
+        self.login("reduser", "pass")
+        submit_resp = self.client.post(
+            "/api/flags/submit",
+            json={"flag_id": flag.id, "team_id": self.blue_team1.id},
+        )
+        assert submit_resp.status_code == 200
+        assert submit_resp.json["points_deducted"] == 10
+
+        submission = self.session.query(RedFlagSubmission).filter(
+            RedFlagSubmission.flag_id == flag.id,
+            RedFlagSubmission.target_team_id == self.blue_team1.id,
+        ).first()
+        assert submission is not None
+
+        self.login("blueuser1", "pass")
+        stats_resp = self.client.get(f"/api/team/{self.blue_team1.id}/stats")
+        assert stats_resp.status_code == 200
+        assert stats_resp.json["current_score"] == "10"
+
+    def test_api_flags_submit_duplicate_for_same_team_and_flag(self):
+        flag = Flag(
+            type=FlagTypeEnum.file,
+            platform=Platform.windows,
+            perm=Perm.user,
+            data={"path": "C:\\test", "content": "test"},
+            start_time=datetime.now(timezone.utc) - timedelta(minutes=1),
+            end_time=datetime.now(timezone.utc) + timedelta(hours=1),
+            dummy=False,
+        )
+        self.session.add(flag)
+        self.session.commit()
+
+        self.login("reduser", "pass")
+        first_resp = self.client.post(
+            "/api/flags/submit",
+            json={"flag_id": flag.id, "team_id": self.blue_team1.id},
+        )
+        second_resp = self.client.post(
+            "/api/flags/submit",
+            json={"flag_id": flag.id, "team_id": self.blue_team1.id},
+        )
+        assert first_resp.status_code == 200
+        assert second_resp.status_code == 409
+
+    def test_api_flags_submit_rejects_inactive_flag(self):
+        flag = Flag(
+            type=FlagTypeEnum.file,
+            platform=Platform.windows,
+            perm=Perm.user,
+            data={"path": "C:\\test", "content": "test"},
+            start_time=datetime.now(timezone.utc) + timedelta(hours=1),
+            end_time=datetime.now(timezone.utc) + timedelta(hours=2),
+            dummy=False,
+        )
+        self.session.add(flag)
+        self.session.commit()
+
+        self.login("reduser", "pass")
+        resp = self.client.post(
+            "/api/flags/submit",
+            json={"flag_id": flag.id, "team_id": self.blue_team1.id},
+        )
+        assert resp.status_code == 400
+
+    def test_api_flags_add_white_team_authorized(self):
+        self.login("whiteuser", "pass")
+        resp = self.client.post(
+            "/api/flags/add",
+            json={
+                "type": "file",
+                "platform": "nix",
+                "perm": "user",
+                "path": "/tmp/newflag",
+                "content": "secret",
+            },
+        )
+        assert resp.status_code == 200
+        created_flag = self.session.get(Flag, resp.json["flag_id"])
+        assert created_flag is not None
+        assert created_flag.data["path"] == "/tmp/newflag"
+
+    def test_api_flags_add_red_team_unauthorized(self):
+        self.login("reduser", "pass")
+        resp = self.client.post(
+            "/api/flags/add",
+            json={
+                "type": "file",
+                "platform": "nix",
+                "perm": "user",
+                "path": "/tmp/newflag",
+                "content": "secret",
+            },
+        )
+        assert resp.status_code == 403

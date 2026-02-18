@@ -11,6 +11,7 @@ from scoring_engine.models.inject import Inject
 from scoring_engine.models.round import Round
 from scoring_engine.models.service import Service
 from scoring_engine.models.team import Team
+from scoring_engine.red_team_scoring import get_blue_team_penalty_points
 from scoring_engine.sla import (apply_dynamic_scoring_to_round,
                                 calculate_team_total_penalties, get_sla_config)
 
@@ -81,7 +82,9 @@ def scoreboard_get_bar_data():
     team_scores = []
     team_inject_scores = []
     team_sla_penalties = []
+    team_red_flag_penalties = []
     team_adjusted_scores = []
+    red_flag_penalties = get_blue_team_penalty_points()
 
     blue_teams = (
         db.session.query(Team).filter(Team.color == "Blue").order_by(Team.id).all()
@@ -90,19 +93,20 @@ def scoreboard_get_bar_data():
         team_labels.append(blue_team.name)
         service_score = current_scores.get(blue_team.id, 0)
         inject_score = inject_scores.get(blue_team.id, 0)
+        red_penalty = red_flag_penalties.get(blue_team.id, 0)
         team_scores.append(str(service_score))
         team_inject_scores.append(str(inject_score))
+        team_red_flag_penalties.append(str(red_penalty))
 
         # Calculate SLA penalties if enabled
-        # Total base score includes both service and inject scores
-        total_base_score = service_score + inject_score
+        # Total base score includes service score, inject score, and red flag deductions
+        total_base_score = service_score + inject_score - red_penalty
         if sla_config.sla_enabled:
             penalty = calculate_team_total_penalties(blue_team, sla_config)
             team_sla_penalties.append(str(penalty))
-            if sla_config.allow_negative:
-                adjusted = total_base_score - penalty
-            else:
-                adjusted = max(0, total_base_score - penalty)
+            # Red-team flag deductions should be allowed to drive scores negative.
+            # Apply SLA penalty on top without clamping.
+            adjusted = total_base_score - penalty
             team_adjusted_scores.append(str(adjusted))
         else:
             team_sla_penalties.append("0")
@@ -111,6 +115,7 @@ def scoreboard_get_bar_data():
     team_data["labels"] = team_labels
     team_data["service_scores"] = team_scores
     team_data["inject_scores"] = team_inject_scores
+    team_data["red_flag_penalties"] = team_red_flag_penalties
     team_data["sla_penalties"] = team_sla_penalties
     team_data["adjusted_scores"] = team_adjusted_scores
     team_data["sla_enabled"] = sla_config.sla_enabled

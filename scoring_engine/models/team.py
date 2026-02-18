@@ -12,6 +12,7 @@ from scoring_engine.models.inject import Inject
 from scoring_engine.models.round import Round
 from scoring_engine.models.service import Service
 from scoring_engine.db import db
+from scoring_engine.red_team_scoring import get_blue_team_penalty_points
 
 
 def _get_rank_from_scores(scores, target_id, default=1):
@@ -74,9 +75,9 @@ class Team(Base):
             .filter(Check.result.is_(True))
             .scalar()
         )
-        if not score:
-            return 0
-        return score
+        base_score = int(score) if score else 0
+        penalty = get_blue_team_penalty_points().get(self.id, 0)
+        return base_score - penalty
 
     @property
     def current_inject_score(self):
@@ -117,9 +118,15 @@ class Team(Base):
             .all()
         )
 
+        penalties = get_blue_team_penalty_points()
+        adjusted_scores = [
+            (team_id, int(score) - penalties.get(team_id, 0)) for team_id, score in scores
+        ]
+        adjusted_scores = sorted(adjusted_scores, key=lambda x: x[1], reverse=True)
+
         # Scores are already sorted descending by the query
         # Returns 1 if no scores or team not in list
-        return _get_rank_from_scores(scores, self.id, default=1)
+        return _get_rank_from_scores(adjusted_scores, self.id, default=1)
 
     @property
     def is_red_team(self):

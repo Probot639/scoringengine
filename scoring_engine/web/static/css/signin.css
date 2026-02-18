@@ -1,16 +1,30 @@
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&display=swap");
+
 body {
   padding-bottom: 40px;
-  background-color: #eee;
+  color: #d9f7ff;
+  font-family: "Orbitron", "Share Tech Mono", "Rajdhani", "Exo 2", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255, 61, 216, 0.2), transparent 34%),
+    radial-gradient(circle at 80% 12%, rgba(31, 245, 255, 0.16), transparent 28%),
+    linear-gradient(140deg, #05070f 0%, #080d1c 45%, #03050b 100%);
 }
 
 .form-signin {
   max-width: 330px;
-  padding: 15px;
-  margin: 0 auto;
+  padding: 22px;
+  margin: 80px auto 0 auto;
+  background: rgba(9, 15, 31, 0.9);
+  border: 1px solid rgba(31, 245, 255, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px rgba(255, 61, 216, 0.08), 0 16px 40px rgba(0, 0, 0, 0.45);
 }
 .form-signin .form-signin-heading,
 .form-signin .checkbox {
   margin-bottom: 10px;
+  color: #1ff5ff;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 .form-signin .checkbox {
   font-weight: normal;
@@ -18,6 +32,9 @@ body {
 .form-signin .form-control {
   position: relative;
   height: auto;
+  color: #d9f7ff;
+  background: rgba(8, 14, 28, 0.95);
+  border: 1px solid rgba(31, 245, 255, 0.35);
   -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;
           box-sizing: border-box;
@@ -26,6 +43,8 @@ body {
 }
 .form-signin .form-control:focus {
   z-index: 2;
+  border-color: #ff3dd8;
+  box-shadow: 0 0 12px rgba(255, 61, 216, 0.3);
 }
 .form-signin input[type="text"] {
   margin-bottom: -1px;

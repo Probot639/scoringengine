@@ -11,6 +11,7 @@ blue_team_update_port = True
 blue_team_update_account_usernames = True
 blue_team_update_account_passwords = True
 blue_team_view_check_output = True
+red_team_flag_submission_penalty = 10
 timezone = US/Eastern
 upload_folder = /var/uploads
 

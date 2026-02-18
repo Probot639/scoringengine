@@ -24,7 +24,8 @@ def service(id):
         return redirect(url_for('auth.unauthorized'))
     modify_hostname_setting = Setting.get_setting('blue_team_update_hostname').value
     modify_port_setting = Setting.get_setting('blue_team_update_port').value
-    modify_account_usernames_setting = Setting.get_setting('blue_team_update_account_usernames').value
+    # Blue-team service account usernames are immutable.
+    modify_account_usernames_setting = False
     modify_account_passwords_setting = Setting.get_setting('blue_team_update_account_passwords').value
 
     return render_template(

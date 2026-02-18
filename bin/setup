@@ -81,63 +81,58 @@ with app.app_context():
     </ul>"""
 
     welcome_content = """
-    <div class="row">
-        <h1 class="text-center">Diamond Sponsors</h1>
-    </div>
-    <div class="row">
-        <div class="col-xs-12 col-md-4">
-            <div class="card">
-                <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
-            </div>
-        </div>
-        <div class="col-xs-12 col-md-4">
-            <div class="card">
-                <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
-            </div>
-        </div>
-        <div class="col-xs-12 col-md-4">
-            <div class="card">
-                <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
-            </div>
+    <div class="row" style="padding-top: 18px;">
+        <div class="col-xs-12 text-center">
+            <h1 style="font-size: 48px; margin-bottom: 4px;">
+                <span class="glyphicon glyphicon-eye-open" style="margin-right: 10px;"></span>
+                WE ARE WATCHING
+                <span class="glyphicon glyphicon-eye-open" style="margin-left: 10px;"></span>
+            </h1>
+            <p style="color: #8cb9c9; text-transform: uppercase; letter-spacing: 0.16em;">
+                The Signal Sees All. The Grid Remembers.
+            </p>
         </div>
     </div>
-    <div class="row">
-        <h1 class="text-center">Platinum Sponsors</h1>
-    </div>
-    <div class="row">
-        <div class="col-xs-12 col-md-4">
-            <div class="card">
-                <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
+    <div class="row" style="margin-top: 14px;">
+        <div class="col-xs-12 col-md-8">
+            <div class="card" style="width: 100%; float: none; padding: 24px;">
+                <h3 style="margin-top: 0;">Situation Brief</h3>
+                <p style="font-size: 18px;">
+                    You are not alone in this system. Every service pulse, every failed check, every credential leak
+                    is observed.
+                </p>
+                <p style="color: #8cb9c9;">
+                    Keep your stack alive, or be cataloged with the fallen.
+                </p>
             </div>
         </div>
         <div class="col-xs-12 col-md-4">
-            <div class="card">
-                <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
-            </div>
-        </div>
-        <div class="col-xs-12 col-md-4">
-            <div class="card">
-                <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
+            <div class="card" style="width: 100%; float: none; padding: 24px;">
+                <h4 style="margin-top: 0;">System Status</h4>
+                <p><strong style="color:#96ff6b;">ENGINE:</strong> ONLINE</p>
+                <p><strong style="color:#1ff5ff;">SENSORS:</strong> CALIBRATING</p>
+                <p><strong style="color:#ff3dd8;">BLACKWALL:</strong> FRAGMENTED</p>
+                <p><strong style="color:#ff4d6d;">THREAT INDEX:</strong> ELEVATED</p>
             </div>
         </div>
     </div>
-    <div class="row">
-        <h1 class="text-center">Gold Sponsors</h1>
-    </div>
-    <div class="row">
+    <div class="row" style="margin-top: 6px;">
         <div class="col-xs-12 col-md-4">
-            <div class="card">
-                <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
+            <div class="card" style="width: 100%; float: none; padding: 20px;">
+                <h4 style="margin-top: 0;">Blue Team</h4>
+                <p>Maintain service uptime and recover compromised infrastructure before scoring windows close.</p>
             </div>
         </div>
         <div class="col-xs-12 col-md-4">
-            <div class="card">
-                <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
+            <div class="card" style="width: 100%; float: none; padding: 20px;">
+                <h4 style="margin-top: 0;">Red Team</h4>
+                <p>Capture and submit valid flags from target systems to apply direct score penalties.</p>
             </div>
         </div>
         <div class="col-xs-12 col-md-4">
-            <div class="card">
-                <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
+            <div class="card" style="width: 100%; float: none; padding: 20px;">
+                <h4 style="margin-top: 0;">Grey Team</h4>
+                <p>Have fun.</p>
             </div>
         </div>
     </div>
@@ -155,6 +150,7 @@ with app.app_context():
     db.session.add(Setting(name="blue_team_update_account_usernames", value=config.blue_team_update_account_usernames))
     db.session.add(Setting(name="blue_team_update_account_passwords", value=config.blue_team_update_account_passwords))
     db.session.add(Setting(name="blue_team_view_check_output", value=config.blue_team_view_check_output))
+    db.session.add(Setting(name="red_team_flag_submission_penalty", value=config.red_team_flag_submission_penalty))
     db.session.add(Setting(name="agent_checkin_interval_sec", value=config.target_round_time // 5))
     db.session.add(Setting(name="agent_show_flag_early_mins", value=config.agent_show_flag_early_mins))
     db.session.add(Setting(name="agent_psk", value=config.agent_psk))

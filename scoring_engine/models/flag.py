@@ -31,7 +31,6 @@ def _ensure_utc_aware(dt):
 import uuid
 
 from scoring_engine.models.base import Base
-from scoring_engine.models.team import Team
 from scoring_engine.config import config
 
 
@@ -97,3 +96,22 @@ class Solve(Base):
     team_id = Column(Integer, ForeignKey("teams.id"))
     flag = relationship("Flag", backref="solves", lazy="joined")
     team = relationship("Team", backref="flag_solves", lazy="joined")
+
+
+class RedFlagSubmission(Base):
+    __tablename__ = "red_flag_submissions"
+    __table_args__ = (UniqueConstraint("flag_id", "target_team_id", name="_red_flag_target_team_uc"),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    flag_id = Column(String(36), ForeignKey("flags.id"), nullable=False)
+    target_team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
+    submitted_by_team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
+    submitted_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    points = Column(Integer, nullable=False)
+    submitted_at = Column(DateTime(timezone=True), nullable=False)
+
+    flag = relationship("Flag", foreign_keys=[flag_id], lazy="joined")
+    target_team = relationship("Team", foreign_keys=[target_team_id], lazy="joined")
+    submitted_by_team = relationship(
+        "Team", foreign_keys=[submitted_by_team_id], lazy="joined"
+    )
