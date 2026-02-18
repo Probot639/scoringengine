@@ -22,10 +22,9 @@ from scoring_engine.models.service import Service
 from scoring_engine.models.setting import Setting
 from scoring_engine.models.score_adjustment import ScoreAdjustment
 from scoring_engine.models.team import Team
+from scoring_engine.red_team_scoring import get_red_flag_submission_penalty
 
 from . import make_cache_key, mod
-
-FLAG_SUBMISSION_PENALTY_POINTS = 10
 
 
 def _parse_datetime_input(value):
@@ -238,7 +237,7 @@ def api_flags_submit():
     if flag.dummy or not (flag.start_time <= now <= flag.end_time):
         return jsonify({"error": "flag is not currently active"}), 400
 
-    points = FLAG_SUBMISSION_PENALTY_POINTS
+    points = get_red_flag_submission_penalty()
     submission = RedFlagSubmission(
         flag_id=flag.id,
         target_team_id=target_team.id,

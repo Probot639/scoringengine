@@ -142,5 +142,89 @@ flags:
     platform: nix
     perm: user
     data:
-        path: "/tmp/flag"
-        content: "hi"
+        path: "/tmp/flag1"
+        content: "flag{redis_database_100}"
+  - type: file
+    platform: nix
+    perm: user
+    data:
+        path: "/tmp/flag2"
+        content: "flag{redis_rce_100}"
+  - type: file
+    platform: nix
+    perm: user
+    data:
+        path: "/tmp/flag3"
+        content: "flag{privilege_escalation_500}"
+  - type: file
+    platform: nix
+    perm: user
+    data:
+        path: "/tmp/flag4"
+        content: "flag{shattered_by_maelstrom}"
+  - type: file
+    platform: nix
+    perm: user
+    data:
+        path: "/tmp/flag5"
+        content: "flag{1RC_L0GS_4R3_N0T_S3CUR3}"
+  - type: file
+    platform: nix
+    perm: user
+    data:
+        path: "/tmp/flag6"
+        content: "flag{Arasaka_ADMIN04}"
+  - type: file
+    platform: nix
+    perm: user
+    data:
+        path: "/tmp/flag7"
+        content: "flag{arasaka_primary_asset_vault_compromised}"
+  - type: file
+    platform: nix
+    perm: user
+    data:
+        path: "/tmp/flag8"
+        content: "flag{credential_dump_exfiltrated}"
+  - type: file
+    platform: nix
+    perm: user
+    data:
+        path: "/tmp/flag9"
+        content: "flag{edge_node_binary_blob_acquired}"
+  - type: file
+    platform: nix
+    perm: user
+    data:
+        path: "/tmp/flag10"
+        content: "flag{9f3a7d_s4nd3v1st4n_c0hr0m3}"
+  - type: file
+    platform: nix
+    perm: user
+    data:
+        path: "/tmp/flag11"
+        content: "flag{h4ha_g0ty0U}"
+  - type: file
+    platform: nix
+    perm: user
+    data:
+        path: "/tmp/flag12"
+        content: "TEMPFLAG_WILL_BE_ADDED_ANOTHER_TIME_KSJWDVFBWEOIVWOBIVE"
+  - type: file
+    platform: nix
+    perm: user
+    data:
+        path: "/tmp/flag13"
+        content: "TEMPFLAG_WILL_BE_ADDED_ANOTHER_TIME_KSJWDVFBWEOIVWOBIVE"
+  - type: file
+    platform: nix
+    perm: user
+    data:
+        path: "/tmp/flag14"
+        content: "TEMPFLAG_WILL_BE_ADDED_ANOTHER_TIME_KSJWDVFBWEOIVWOBIVE"
+  - type: file
+    platform: nix
+    perm: user
+    data:
+        path: "/tmp/flag15"
+        content: "TEMPFLAG_WILL_BE_ADDED_ANOTHER_TIME_KSJWDVFBWEOIVWOBIVE"

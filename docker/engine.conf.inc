@@ -4,14 +4,14 @@ target_round_time = 30
 agent_psk = TheCakeIsALie
 agent_show_flag_early_mins = 5
 worker_refresh_time = 30
-engine_paused = False
+engine_paused = True
 pause_duration = 30
 blue_team_update_hostname = True
 blue_team_update_port = True
 blue_team_update_account_usernames = True
 blue_team_update_account_passwords = True
 blue_team_view_check_output = True
-red_team_flag_submission_penalty = 10
+red_team_flag_submission_penalty = 112
 timezone = US/Eastern
 upload_folder = /var/uploads
 
