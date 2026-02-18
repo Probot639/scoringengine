@@ -2,6 +2,7 @@ from sqlalchemy import func
 
 from scoring_engine.db import db
 from scoring_engine.models.flag import RedFlagSubmission
+from scoring_engine.models.score_adjustment import ScoreAdjustment
 from scoring_engine.models.setting import Setting
 
 
@@ -28,3 +29,15 @@ def get_blue_team_penalty_points():
         .all()
     )
     return {team_id: int(points) for team_id, points in penalties}
+
+
+def get_blue_team_manual_adjustment_points():
+    adjustments = (
+        db.session.query(
+            ScoreAdjustment.target_team_id,
+            func.coalesce(func.sum(ScoreAdjustment.points), 0),
+        )
+        .group_by(ScoreAdjustment.target_team_id)
+        .all()
+    )
+    return {team_id: int(points) for team_id, points in adjustments}

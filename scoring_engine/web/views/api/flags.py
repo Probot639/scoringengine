@@ -20,6 +20,7 @@ from scoring_engine.models.flag import (
 )
 from scoring_engine.models.service import Service
 from scoring_engine.models.setting import Setting
+from scoring_engine.models.score_adjustment import ScoreAdjustment
 from scoring_engine.models.team import Team
 
 from . import make_cache_key, mod
@@ -133,6 +134,54 @@ def api_flags_add():
     update_flags_data()
 
     return jsonify({"status": "ok", "flag_id": new_flag.id})
+
+
+@mod.route("/api/flags/adjust_score", methods=["POST"])
+@login_required
+def api_flags_adjust_score():
+    if not current_user.is_white_team:
+        return jsonify({"error": "Incorrect permissions"}), 403
+
+    payload = request.get_json(silent=True) or request.form
+    team_id = payload.get("team_id")
+    points = payload.get("points")
+    reason = (payload.get("reason") or "").strip()
+
+    if team_id is None or points is None:
+        return jsonify({"error": "team_id and points are required"}), 400
+
+    try:
+        team_id = int(team_id)
+        points = int(points)
+    except (TypeError, ValueError):
+        return jsonify({"error": "team_id and points must be integers"}), 400
+
+    target_team = db.session.get(Team, team_id)
+    if target_team is None or not target_team.is_blue_team:
+        return jsonify({"error": "target team must be a blue team"}), 400
+
+    adjustment = ScoreAdjustment(
+        target_team_id=target_team.id,
+        adjusted_by_team_id=current_user.team.id,
+        adjusted_by_user_id=current_user.id,
+        points=points,
+        reason=reason if reason else None,
+        created_at=datetime.now(timezone.utc),
+    )
+    db.session.add(adjustment)
+    db.session.commit()
+
+    update_scoreboard_data()
+    update_team_stats(target_team.id)
+
+    return jsonify(
+        {
+            "status": "ok",
+            "team_id": target_team.id,
+            "points": points,
+            "reason": reason,
+        }
+    )
 
 
 @mod.route("/api/flags/submit", methods=["POST"])

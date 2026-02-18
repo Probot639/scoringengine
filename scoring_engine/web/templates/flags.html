@@ -23,6 +23,30 @@
     <div class="row">
         <p id="add_flag_status" class="text-center"></p>
     </div>
+    <div class="row">
+        <h2 class="text-center">Manual Score Adjustment</h2>
+    </div>
+    <div class="row" style="margin-bottom: 20px;">
+        <div class="col-sm-3 col-sm-offset-2">
+            <select id="adjust_team_id" class="form-control">
+                {% for team in teams %}
+                <option value="{{ team.id }}">{{ team.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-2">
+            <input id="adjust_points" class="form-control" type="number" placeholder="+10 / -10">
+        </div>
+        <div class="col-sm-3">
+            <input id="adjust_reason" class="form-control" type="text" placeholder="Reason (optional)">
+        </div>
+        <div class="col-sm-2">
+            <button id="adjust_score_button" class="btn btn-warning">Apply</button>
+        </div>
+    </div>
+    <div class="row">
+        <p id="adjust_score_status" class="text-center"></p>
+    </div>
     {% endif %}
     {% if current_user.is_red_team %}
     <div class="row">
@@ -126,6 +150,35 @@
           error: function(xhr) {
               var err = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : 'Add failed';
               $('#add_flag_status').text(err);
+          }
+      });
+  });
+
+  $('#adjust_score_button').on('click', function() {
+      var teamId = $('#adjust_team_id').val();
+      var points = $('#adjust_points').val();
+      var reason = $('#adjust_reason').val();
+      $('#adjust_score_status').text('');
+
+      if (!points) {
+          $('#adjust_score_status').text('Points are required');
+          return;
+      }
+
+      $.ajax({
+          url: '/api/flags/adjust_score',
+          type: 'POST',
+          data: {
+              team_id: teamId,
+              points: points,
+              reason: reason
+          },
+          success: function(resp) {
+              $('#adjust_score_status').text('Applied ' + resp.points + ' points to team ' + resp.team_id);
+          },
+          error: function(xhr) {
+              var err = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : 'Adjustment failed';
+              $('#adjust_score_status').text(err);
           }
       });
   });

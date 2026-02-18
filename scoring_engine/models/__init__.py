@@ -9,3 +9,4 @@ from scoring_engine.models.kb import KB
 from scoring_engine.models.environment import Environment
 from scoring_engine.models.inject import Template, Inject
 from scoring_engine.models.flag import Flag, Solve, RedFlagSubmission
+from scoring_engine.models.score_adjustment import ScoreAdjustment

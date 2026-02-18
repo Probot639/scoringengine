@@ -12,7 +12,10 @@ from scoring_engine.models.inject import Inject
 from scoring_engine.models.round import Round
 from scoring_engine.models.service import Service
 from scoring_engine.db import db
-from scoring_engine.red_team_scoring import get_blue_team_penalty_points
+from scoring_engine.red_team_scoring import (
+    get_blue_team_manual_adjustment_points,
+    get_blue_team_penalty_points,
+)
 
 
 def _get_rank_from_scores(scores, target_id, default=1):
@@ -77,7 +80,8 @@ class Team(Base):
         )
         base_score = int(score) if score else 0
         penalty = get_blue_team_penalty_points().get(self.id, 0)
-        return base_score - penalty
+        manual_adjustment = get_blue_team_manual_adjustment_points().get(self.id, 0)
+        return base_score - penalty + manual_adjustment
 
     @property
     def current_inject_score(self):
@@ -119,8 +123,15 @@ class Team(Base):
         )
 
         penalties = get_blue_team_penalty_points()
+        manual_adjustments = get_blue_team_manual_adjustment_points()
         adjusted_scores = [
-            (team_id, int(score) - penalties.get(team_id, 0)) for team_id, score in scores
+            (
+                team_id,
+                int(score)
+                - penalties.get(team_id, 0)
+                + manual_adjustments.get(team_id, 0),
+            )
+            for team_id, score in scores
         ]
         adjusted_scores = sorted(adjusted_scores, key=lambda x: x[1], reverse=True)
 
